@@ -81,7 +81,7 @@ public final class Logger {
     }
     
     // Log a message if the logger's log level is equal to or lower than the specified level.
-    private class func log(_ message: String, properties: [String: Any]? = nil, level: Level = .debug, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
+    public class func log(_ message: String, properties: [String: Any]? = nil, level: Level = .debug, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
         
         let config = Logger.shared.configuration!
         

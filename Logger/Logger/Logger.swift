@@ -81,14 +81,20 @@ public final class Logger {
     }
     
     // Log a message if the logger's log level is equal to or lower than the specified level.
-    public class func log(_ message: String, properties: [String: Any]? = nil, level: Level = .debug, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
+    private class func log<T>(_ message: String, data: T? = nil, level: Level = .debug, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
         
         let config = Logger.shared.configuration!
         
         if config.logLevel.atLeast(level) {
             
-            var appendContents = Logger.formattedMessage(message, properties: properties, level: level, fileName: fileName, line: line, column: column, functionName: functionName)
+            var appendContents = Logger.formattedMessage(message, level: level, fileName: fileName, line: line, column: column, functionName: functionName)
             debugPrint(appendContents)
+            if let aData = data{
+                if let aString = aData as? String, aString.count == 0{
+                }else{
+                    debugPrint(aData)
+                }
+            }
             
             if writeToFile {
                 
@@ -112,7 +118,7 @@ public final class Logger {
         }
     }
     
-    private class func formattedMessage(_ message: String, properties: [String: Any]?, level: Level, fileName: String, line: Int, column: Int, functionName: String) -> String {
+    private class func formattedMessage(_ message: String, level: Level, fileName: String, line: Int, column: Int, functionName: String) -> String {
         
         let config = Logger.shared.configuration!
         var appendContents = String()
@@ -129,17 +135,6 @@ public final class Logger {
         
         appendContents += config.showFunctionName ? " \(functionName)" : ""
         appendContents += " -> \(message)"
-        
-        if let properties = properties {
-            
-            appendContents += "\nPROPERTIES ¬ \n"
-            
-            for (key, _) in properties {
-                assert(properties[key] != nil, "Event property cannot be null")
-                appendContents += "\(key): \"\(String(describing: properties[key]))\"\n"
-            }
-        }
-        
         return appendContents
     }
     
@@ -197,37 +192,61 @@ public final class Logger {
 // MARK: Logging methods
 extension Logger {
     
-    public class func verbose(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
-        Logger.log(message, properties: properties, level: .verbose, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    public class func verbose(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .verbose, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
     }
     
-    public class func debug(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
-        Logger.log(message, properties: properties, level: .debug, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    public class func verbose<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool) {
+        Logger.log(message, data: data, level: .verbose, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
     }
     
-    public class func info(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
-        Logger.log(message, properties: properties, level: .info, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    public class func debug(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .debug, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
     }
     
-    public class func warning(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
-        Logger.log(message, properties: properties, level: .warning, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    public class func debug<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: data, level: .debug, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
     }
     
-    public class func error(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
-        Logger.log(message, properties: properties, level: .error, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    public class func info(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .info, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
     }
     
-    public class func severe(_ message: String, properties: [String: Any]? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function) {
-        Logger.log(message, properties: properties, level: .severe, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: true)
+    public class func info<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: data, level: .info, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func warning(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .warning, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func warning<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: data, level: .warning, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func error(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .error, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func error<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: data, level: .error, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func severe(_ message: String, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function, writeToFile: Bool = false) {
+        Logger.log(message, data: "", level: .severe, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: writeToFile)
+    }
+    
+    public class func severe<T>(_ message: String, data: T? = nil, fileName: String = #file, line: Int = #line, column: Int = #column, functionName: String = #function) {
+        Logger.log(message, data: data, level: .severe, fileName: fileName, line: line, column: column, functionName: functionName, writeToFile: true)
     }
 }
 
 internal extension Date {
     
-    func toString(format: String? = "MMM dd, yyyy") -> String {
+    func toString() -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone.current
-        dateFormatter.dateFormat = format
+        dateFormatter.timeStyle = .medium
+        dateFormatter.dateStyle = .long
         return dateFormatter.string(from: self)
     }
 }
